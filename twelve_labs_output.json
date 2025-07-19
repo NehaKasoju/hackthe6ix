@@ -1,0 +1,16 @@
+{
+  "results": [
+    {
+      "timestamp": "00:05-00:10",
+      "description": "a person walking in a park"
+    },
+    {
+      "timestamp": "00:12-00:15",
+      "description": "a dog running towards the camera"
+    },
+    {
+      "timestamp": "00:20-00:25",
+      "description": "two people sitting on a bench"
+    }
+  ]
+}
