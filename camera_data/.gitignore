@@ -1,0 +1,21 @@
+# Ignore development files
+# VS Code
+.vscode/
+*.code-workspace
+
+# Ignore build artifacts
+# Binary executables
+/**/x86_64/o*/*
+!/**/x86_64/o*/*.*
+!/**/x86_64/o*/Makefile
+/**/aarch64/o*/*
+!/**/aarch64/o*/*.*
+!/**/aarch64/o*/Makefile
+# Libraries and symbols
+*.so
+*.a
+*.sym
+# Temporary build artifacts
+*.o
+*.dep
+*.pinfo
