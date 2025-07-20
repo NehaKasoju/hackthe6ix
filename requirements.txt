@@ -1,0 +1,4 @@
+twelvelabs
+pyttsx3
+dotenv
+requests
