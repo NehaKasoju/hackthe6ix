@@ -53,14 +53,14 @@ static void listAvailableCameras(void);
  * @param buffer Buffer of camera data
  * @param arg Argument provided when starting streaming
  */
-static void processCameraData(camera_handle_t handle, camera_buffer_t* buffer, void* arg);
+static void processCameraData(camera_handle_t handle, camera_buffer_t *buffer, void *arg);
 
 /**
  * @brief Blocks until the user presses any key
  */
 static void blockOnKeyPress(void);
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     int err;
     int opt;
@@ -69,8 +69,10 @@ int main(int argc, char* argv[])
     camera_frametype_t frametype = CAMERA_FRAMETYPE_UNSPECIFIED;
 
     // Read command line options
-    while ((opt = getopt(argc, argv, "u:")) != -1 || (optind < argc)) {
-        switch (opt) {
+    while ((opt = getopt(argc, argv, "u:")) != -1 || (optind < argc))
+    {
+        switch (opt)
+        {
         case 'u':
             unit = (camera_unit_t)strtol(optarg, NULL, 10);
             break;
@@ -81,7 +83,8 @@ int main(int argc, char* argv[])
     }
 
     // If no camera unit has been specified, list the options and exit
-    if ((unit == CAMERA_UNIT_NONE) || (unit >= CAMERA_UNIT_NUM_UNITS)) {
+    if ((unit == CAMERA_UNIT_NONE) || (unit >= CAMERA_UNIT_NUM_UNITS))
+    {
         listAvailableCameras();
         printf("Please provide camera unit with -u option\n");
         exit(EXIT_SUCCESS);
@@ -91,26 +94,31 @@ int main(int argc, char* argv[])
     // CAMERA_MODE_RO doesn't give us access to change camera configuration
     // and we can't modify the memory in a provided buffer.
     err = camera_open(unit, CAMERA_MODE_RO, &handle);
-    if ((err != CAMERA_EOK) || (handle == CAMERA_HANDLE_INVALID)) {
+    if ((err != CAMERA_EOK) || (handle == CAMERA_HANDLE_INVALID))
+    {
         printf("Failed to open CAMERA_UNIT_%d: err = %d\n", (int)unit, err);
         exit(EXIT_FAILURE);
     }
 
     // Make sure that this camera defaults to a supported frametype
     err = camera_get_vf_property(handle, CAMERA_IMGPROP_FORMAT, &frametype);
-    if (err != CAMERA_EOK) {
+    if (err != CAMERA_EOK)
+    {
         printf("Failed to get frametype for CAMERA_UNIT_%d: err = %d\n", (int)unit, err);
         (void)camera_close(handle);
         exit(EXIT_FAILURE);
     }
     bool unsupportedFrametype = true;
-    for (uint i = 0; i < NUM_SUPPORTED_FRAMETYPES; i++) {
-        if (frametype == cSupportedFrametypes[i]) {
+    for (uint i = 0; i < NUM_SUPPORTED_FRAMETYPES; i++)
+    {
+        if (frametype == cSupportedFrametypes[i])
+        {
             unsupportedFrametype = false;
             break;
         }
     }
-    if (unsupportedFrametype) {
+    if (unsupportedFrametype)
+    {
         printf("Camera frametype %d is not supported\n", (int)frametype);
         (void)camera_close(handle);
         exit(EXIT_FAILURE);
@@ -119,7 +127,8 @@ int main(int argc, char* argv[])
 
     // Start the camera streaming: callbacks will start being received
     err = camera_start_viewfinder(handle, processCameraData, NULL, NULL);
-    if (err != CAMERA_EOK) {
+    if (err != CAMERA_EOK)
+    {
         printf("Failed to start CAMERA_UNIT_%d: err = %d\n", (int)unit, err);
         (void)camera_close(handle);
         exit(EXIT_FAILURE);
@@ -130,7 +139,8 @@ int main(int argc, char* argv[])
     // Stop the camera streaming: no more callbacks will be received
     err = camera_stop_viewfinder(handle);
     printf("\r\n");
-    if (err != CAMERA_EOK) {
+    if (err != CAMERA_EOK)
+    {
         printf("Failed to stop CAMERA_UNIT_%d: err = %d\n", (int)unit, err);
         (void)camera_close(handle);
         exit(EXIT_FAILURE);
@@ -138,11 +148,13 @@ int main(int argc, char* argv[])
 
     // Close the camera handle
     err = camera_close(handle);
-    if (err != CAMERA_EOK) {
+    if (err != CAMERA_EOK)
+    {
         printf("Failed to close CAMERA_UNIT_%d: err = %d\n", (int)unit, err);
         exit(EXIT_FAILURE);
     }
 
+    printf("SUCCESSSSS");
     exit(EXIT_SUCCESS);
 }
 
@@ -150,34 +162,41 @@ static void listAvailableCameras(void)
 {
     int err;
     uint numSupported;
-    camera_unit_t* supportedCameras;
+    camera_unit_t *supportedCameras;
 
     // Determine how many cameras are supported
     err = camera_get_supported_cameras(0, &numSupported, NULL);
-    if (err != CAMERA_EOK) {
+    if (err != CAMERA_EOK)
+    {
         printf("Failed to get number of supported cameras: err = %d\n", err);
         return;
     }
 
-    if (numSupported == 0) {
+    if (numSupported == 0)
+    {
         printf("No supported cameras detected!\n");
         return;
     }
 
     // Allocate an array big enough to hold all camera units
-    supportedCameras = (camera_unit_t*)calloc(numSupported, sizeof(camera_unit_t));
-    if (supportedCameras == NULL) {
+    supportedCameras = (camera_unit_t *)calloc(numSupported, sizeof(camera_unit_t));
+    if (supportedCameras == NULL)
+    {
         printf("Failed to allocate memory for supported cameras\n");
         return;
     }
 
     // Get the list of supported cameras
     err = camera_get_supported_cameras(numSupported, &numSupported, supportedCameras);
-    if (err != CAMERA_EOK) {
+    if (err != CAMERA_EOK)
+    {
         printf("Failed to get list of supported cameras: err = %d\n", err);
-    } else {
+    }
+    else
+    {
         printf("Available camera units:\n");
-        for (uint i = 0; i < numSupported; i++) {
+        for (uint i = 0; i < numSupported; i++)
+        {
             printf("\tCAMERA_UNIT_%d", supportedCameras[i]);
             printf(" (specify -u %d)\n", supportedCameras[i]);
         }
@@ -187,8 +206,9 @@ static void listAvailableCameras(void)
     return;
 }
 
-static void processCameraData(camera_handle_t handle, camera_buffer_t* buffer, void* arg)
+static void processCameraData(camera_handle_t handle, camera_buffer_t *buffer, void *arg)
 {
+    printf("begin PROCESS cam data");
     clock_t begin;
     clock_t end;
     double channelAverage[NUM_CHANNELS];
@@ -202,60 +222,103 @@ static void processCameraData(camera_handle_t handle, camera_buffer_t* buffer, v
     // bytes in each line and determining which channel the byte belongs to.
     begin = clock();
     memset(channelAverage, 0x0, sizeof(channelAverage));
-    switch (buffer->frametype) {
+    switch (buffer->frametype)
+    {
     case CAMERA_FRAMETYPE_RGB8888:
     {
+        printf("rgb typeeeeeeeee");
         // Channel averages ordering: R, G, B
         uint32_t width = buffer->framedesc.rgb8888.width;
         uint32_t height = buffer->framedesc.rgb8888.height;
         uint32_t stride = buffer->framedesc.rgb8888.stride;
-        for (uint y = 0; y < height; y++) {
-            uint8_t* linePointer = buffer->framebuf + y * stride;
-            for (uint i = 0; i < 4 * width; i++) {
+        for (uint y = 0; y < height; y++)
+        {
+            uint8_t *linePointer = buffer->framebuf + y * stride;
+            for (uint i = 0; i < 4 * width; i++)
+            {
                 uint chan = i % 4;
-                if (chan == 3) {
+                if (chan == 3)
+                {
                     continue;
                 }
                 channelAverage[chan] += (double)*(linePointer + i);
             }
         }
-        for (uint chan = 0; chan < NUM_CHANNELS; chan++) {
+        for (uint chan = 0; chan < NUM_CHANNELS; chan++)
+        {
             channelAverage[chan] /= (double)(width * height);
         }
         break;
     }
     case CAMERA_FRAMETYPE_BGR8888:
     {
+        printf("BGR typeeeeeeeee");
         // Channel averages ordering: R, G, B
         uint32_t width = buffer->framedesc.bgr8888.width;
         uint32_t height = buffer->framedesc.bgr8888.height;
         uint32_t stride = buffer->framedesc.bgr8888.stride;
+        FILE *fptr;
+        fptr = fopen("BGRBufferData.txt", "w");
+
+        if (fptr == NULL)
+        {
+            printf("BGR buffer data file is not opened.");
+        }
+        else
+        {
+            printf("BGR buffer data file opened successfully.\n");
+        }
+        fprintf(fptr, "%u\n", width);
+        fprintf(fptr, "%u\n", height);
+
+        // Loop over image and write B, G, R bytes (skip alpha if 4 bytes per pixel)
         for (uint y = 0; y < height; y++) {
-            uint8_t* linePointer = buffer->framebuf + y * stride;
-            for (uint i = 0; i < 4 * width; i++) {
-                if (i % 4 == 3) {
+            uint8_t *linePointer = buffer->framebuf + y * stride;
+            for (uint x = 0; x < width; x++) {
+                uint8_t b = linePointer[4 * x + 0];
+                uint8_t g = linePointer[4 * x + 1];
+                uint8_t r = linePointer[4 * x + 2];
+                fprintf(fptr, "%u\n%u\n%u\n", b, g, r);  // Write one pixel at a time
+            }
+        }
+        fclose(fptr);
+        exit(0);
+        for (uint y = 0; y < height; y++)
+        {
+            uint8_t *linePointer = buffer->framebuf + y * stride;
+            for (uint i = 0; i < 4 * width; i++)
+            {
+                if (i % 4 == 3)
+                {
                     continue;
                 }
                 uint chan = (4 * width - i + 3) % 4 - 1;
                 channelAverage[chan] += (double)*(linePointer + i);
             }
         }
-        for (uint chan = 0; chan < NUM_CHANNELS; chan++) {
+        for (uint chan = 0; chan < NUM_CHANNELS; chan++)
+        {
             channelAverage[chan] /= (double)(width * height);
         }
         break;
     }
     case CAMERA_FRAMETYPE_YCBYCR:
     {
+        printf("y u do this to me YCR typeeeeeeeee");
         // Channel averages ordering: Y, Cb, Cr
         uint32_t width = buffer->framedesc.ycbycr.width;
         uint32_t height = buffer->framedesc.ycbycr.height;
         uint32_t stride = buffer->framedesc.ycbycr.stride;
-        for (uint y = 0; y < height; y++) {
-            uint8_t* linePointer = buffer->framebuf + y * stride;
-            for (uint i = 0; i < 2 * width; i++) {
+
+
+        for (uint y = 0; y < height; y++)
+        {
+            uint8_t *linePointer = buffer->framebuf + y * stride;
+            for (uint i = 0; i < 2 * width; i++)
+            {
                 uint chan = i % 2;
-                if (chan == 1) {
+                if (chan == 1)
+                {
                     chan = (i - 1) % 4 / 2 + 1;
                 }
                 channelAverage[chan] += (double)*(linePointer + i);
@@ -268,15 +331,19 @@ static void processCameraData(camera_handle_t handle, camera_buffer_t* buffer, v
     }
     case CAMERA_FRAMETYPE_CBYCRY:
     {
+        printf("CBYCRY FRAME TYPEEEEE");
         // Channel averages ordering: Y, Cb, Cr
         uint32_t width = buffer->framedesc.cbycry.width;
         uint32_t height = buffer->framedesc.cbycry.height;
         uint32_t stride = buffer->framedesc.cbycry.stride;
-        for (uint y = 0; y < height; y++) {
-            uint8_t* linePointer = buffer->framebuf + y * stride;
-            for (uint i = 0; i < 2 * width; i++) {
+        for (uint y = 0; y < height; y++)
+        {
+            uint8_t *linePointer = buffer->framebuf + y * stride;
+            for (uint i = 0; i < 2 * width; i++)
+            {
                 uint chan = (i + 1) % 2;
-                if (chan == 1) {
+                if (chan == 1)
+                {
                     chan = ((i + 1) % 4 + 1) / 2;
                 }
                 channelAverage[chan] += (double)*(linePointer + i);
