@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 from twelvelabs import TwelveLabs
 from twelvelabs.models.task import Task
 
-from prompts import DefaultPrompt
+from prompts import TwelveLabPrompt
 
 INDEX_NAMES = ["test_videos", "scenery_videos"]  # Hard coded index names for simplicity
 
@@ -61,7 +61,7 @@ def wait_for_task_completion(task_id: str):
             return task
         time.sleep(5)
 
-def get_summary_response(video_source: str, prompt: str = DefaultPrompt) -> str:
+def get_summary_response(video_source: str, prompt: str = TwelveLabPrompt) -> str:
     """Analyze a video from a local file or URL and return a summary."""
     if is_url(video_source):
         print("Using remote URL for task creation.")
