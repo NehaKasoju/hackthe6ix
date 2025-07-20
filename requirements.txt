@@ -2,3 +2,4 @@ twelvelabs
 pyttsx3
 dotenv
 requests
+google-generativeai
